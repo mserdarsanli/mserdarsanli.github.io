@@ -7,16 +7,15 @@
     <atom:link href="https://mserdarsanli.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>Welcome to Jekyll!</title>
+        <title>How To Run Vim in 256 Color Mode</title>
         
         
-          <description>&lt;p&gt;You&amp;#39;ll find this post in your &lt;code&gt;_posts&lt;/code&gt; directory - edit this post and re-build (or run with the &lt;code&gt;-w&lt;/code&gt; switch) to see your changes!
-To add new posts, simply add a file in the &lt;code&gt;_posts&lt;/code&gt; directory that follows the convention: YYYY-MM-DD-name-of-post.ext.&lt;/p&gt;
+          <description>&lt;h2&gt;Vim and Terminal Colors&lt;/h2&gt;
 </description>
         
-        <pubDate>Sun, 10 Nov 2013 10:18:00 +0000</pubDate>
-        <link>https://mserdarsanli.github.io/2013/welcome-to-jekyll/</link>
-        <guid isPermaLink="true">https://mserdarsanli.github.io/2013/welcome-to-jekyll/</guid>
+        <pubDate>Sun, 27 Sep 2015 20:19:00 +0000</pubDate>
+        <link>https://mserdarsanli.github.io/2015/vim-inside-tmux-256-colors/</link>
+        <guid isPermaLink="true">https://mserdarsanli.github.io/2015/vim-inside-tmux-256-colors/</guid>
       </item>
     
   </channel>

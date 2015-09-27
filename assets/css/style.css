@@ -291,7 +291,12 @@ hr {
 	background: #eee;
 }
 
-span.code { font-family:Menlo, Monaco, Courier; background-color:#EEE; font-size:14px; }
+/* not to modify code block styles */
+:not(pre)>code {
+	font-family: Monospace;
+	background-color:#EEE;
+	font-size:16px;
+}
 
 pre	{
 	font-family:Menlo, Monaco, Courier;

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Mustafa Serdar Sanli - How To Run Vim in 256 Color Mode</title>
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="alternate" type="application/rss+xml" title="My Blog" href="/rss.xml">
+  <link rel="stylesheet" href="/assets/css/highlight.css">
+</head>
+<body>
+
+  <nav class="main-nav">
+    
+        <a href="/"> <span class="arrow">←</span> Home </a>
+    
+
+    
+        
+            <a href="/about">About </a>
+        
+    
+    <a class="cta" href="/feed.xml">Subscribe</a>
+</nav>
+
+  
+
+  <section id="wrapper" class="">
+    <article class="post">
+    <header>
+        <h1>How To Run Vim in 256 Color Mode</h1>
+        <h2 class="headline">September 27, 2015</h2>
+    </header>
+    <section id="post-body">
+        <h2>Vim and Terminal Colors</h2>
+
+<p>Vim can support 8, 16, 88 and 256 color modes. This setting can be overridden with
+<code>t_Co</code> option.</p>
+
+<p>For Linux, <code>t_Co</code> has default value of <code>8</code>. You can see the default value by
+launching vim with clean environment and no vimrc.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">env TERM= vim -u NONE
+</code></pre></div>
+<p>Then inside vim ask for the current value of <code>t_Co</code>.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">:set t_Co?
+  t_Co=8
+</code></pre></div>
+<h3>Terminfo</h3>
+
+<p>But, why did we need to unset <code>TERM</code> environment variable to see the default
+<code>t_Co</code> value?
+Because Vim loads terminal information from
+<a href="http://man7.org/linux/man-pages/man5/terminfo.5.html">terminfo(5)</a> on startup.</p>
+
+<p>You might have your <code>TERM</code> defined as <strong>xterm</strong>, <strong>xterm-256color</strong> or something else.
+Terminal information are stored in terminfo database. In my <strong>Debian 8</strong> machine,
+these terminfo entries are located in <code>/lib/terminfo/x/xterm</code> and
+<code>/lib/terminfo/x/xterm-256color</code> files respectively.</p>
+
+<p>To see those terminfo entries, <code>infocmp</code> can be used.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ infocmp -1 xterm | grep colors#
+        colors#8,
+$ infocmp -1 xterm-256color | grep colors#
+        colors#256,
+</code></pre></div>
+<p>Vim loads terminal information from terminfo entries, that is why <code>TERM</code> variable
+was unset.</p>
+
+<h2>How To Run Vim in 256 Color Mode</h2>
+
+<p>Although Vim will try to guess what our terminal is capable to display, we can
+ask it to run in 256 color mode with command:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">:set t_Co=256
+</code></pre></div>
+<p>Adding following line to ~/.vimrc will have the same effect.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">set t_Co=256
+</code></pre></div>
+<h2>Tmux Users</h2>
+
+<p>Tmux similarly get information about you terminal at start, and does not try to
+display more colors. Even if you are running vim in 256 color mode, if that is
+inside a tmux with 16 color mode, tmux will reduce the colors Vim outputs for your
+terminal display.</p>
+
+<p>To make tmux understand that your terminal is capable of displaying 256 colors,
+you should start tmux with <code>TERM</code> variable set to <code>xterm-256color</code> or similar.
+Otherwise, tmux may reduce output to 88 or 16 colors based on what it thinks your terminal
+can display.</p>
+
+<p>An easy solution is adding following line to your <code>~/.bashrc</code>, so when you launch
+<code>tmux</code>, it will see your terminal as capable of displaying 256 colors.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">alias tmux=&quot;TERM=xterm-256color tmux&quot;
+</code></pre></div>
+    </section>
+</article>
+<footer id="post-meta" class="clearfix">
+    <a href="http://twitter.com/mserdarsanli">
+        <img class="avatar" src="/assets/images/avatar.jpg">
+        <div>
+            <span class="dark">Mustafa Serdar Sanli</span>
+            <span>Blogging about stuffs</span>
+        </div>
+    </a>
+
+    <section id="sharing">
+        <a class="twitter" href="https://twitter.com/intent/tweet?text=https://mserdarsanli.github.io/2015/vim-inside-tmux-256-colors/ - How To Run Vim in 256 Color Mode by @mserdarsanli"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+    </section>
+</footer>
+
+<!-- Disqus comments -->
+
+
+<!-- Archive post list -->
+
+    <ul id="post-list" class="archive readmore">
+        <h3>Read more</h3>
+        
+            <li>
+                <a href="/2015/vim-inside-tmux-256-colors/">How To Run Vim in 256 Color Mode<aside class="dates">Sep 27</aside></a>
+            </li>
+        
+    </ul>
+
+
+
+
+
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/highlight.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-68150562-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>
+
+
+
