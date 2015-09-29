@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Mustafa Serdar Sanli - Tmux Color Handling</title>
+  <link rel="shortcut icon" href="/assets/images/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="alternate" type="application/rss+xml" title="My Blog" href="/rss.xml">
+  <link rel="stylesheet" href="/assets/css/highlight.css">
+</head>
+<body>
+
+  <nav class="main-nav">
+    
+        <a href="/"> <span class="arrow">←</span> Home </a>
+    
+
+    
+        
+            <a href="/about">About </a>
+        
+    
+    <a class="cta" href="/feed.xml">Subscribe</a>
+</nav>
+
+  
+
+  <section id="wrapper" class="">
+    <article class="post">
+    <header>
+        <h1>Tmux Color Handling</h1>
+        <h2 class="headline">September 30, 2015</h2>
+    </header>
+    <section id="post-body">
+        <h2>Tmux</h2>
+
+<p>In my <a href="/2015/vim-inside-tmux-256-colors/">previous post</a>, I mentioned how
+<code>TERM</code> variable affects tmux behavior. Each defined terminal has various differences, but
+I am only focusing on colors here.</p>
+
+<p>After loading terminal capabilities from <a href="http://man7.org/linux/man-pages/man5/terminfo.5.html">terminfo(5)</a>, tmux knows whether your terminal
+supports 256 colors or not. When tmux thinks the terminal is not capable of displaying 256 colors,
+program&#39;s output colors are mapped to 16 colors.</p>
+
+<p>Here is the function which does the mapping of color codes,
+defined in <a href="https://github.com/tmux/tmux/blob/2.0/colour.c#L267">colour.c</a> in tmux 2.0.</p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="cm">/*</span>
+<span class="cm"> * Copyright (c) 2008 Nicholas Marriott &lt;nicm@users.sourceforge.net&gt;</span>
+<span class="cm"> *</span>
+<span class="cm"> * Permission to use, copy, modify, and distribute this software for any</span>
+<span class="cm"> * purpose with or without fee is hereby granted, provided that the above</span>
+<span class="cm"> * copyright notice and this permission notice appear in all copies.</span>
+<span class="cm"> *</span>
+<span class="cm"> * THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES</span>
+<span class="cm"> * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF</span>
+<span class="cm"> * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR</span>
+<span class="cm"> * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES</span>
+<span class="cm"> * WHATSOEVER RESULTING FROM LOSS OF MIND, USE, DATA OR PROFITS, WHETHER</span>
+<span class="cm"> * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING</span>
+<span class="cm"> * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</span>
+<span class="cm"> */</span>
+
+<span class="cm">/* Convert 256 colour palette to 16. */</span>
+<span class="n">u_char</span>
+<span class="nf">colour_256to16</span><span class="p">(</span><span class="n">u_char</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="n">u_char</span> <span class="n">table</span><span class="p">[</span><span class="mi">256</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+         <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>
+         <span class="mi">0</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>
+         <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>
+         <span class="mi">5</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>
+         <span class="mi">3</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span>
+         <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>
+        <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span>
+         <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span>
+         <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>
+         <span class="mi">8</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span>
+    <span class="p">};</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">c</span><span class="p">]);</span>
+<span class="p">}</span></code></pre></div>
+
+<p>It is a direct mapping from 256-color code to 16-color code. I don&#39;t know if it was
+generated or made manually.</p>
+
+<h2>Testing Colors</h2>
+
+<p>There are helper scripts to show you all 256 colors in the terminal. I&#39;ve made another to dump
+colors in a layout similar to <a href="https://en.wikipedia.org/wiki/File:Xterm_256color_chart.svg">Xterm 256color chart</a>.</p>
+
+<p>Here is <a href="/assets/content-src/test_terminal.sh">test_terminal.sh</a></p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">function</span> <span class="n">set_fg</span> <span class="p">{</span>
+    <span class="n">printf</span> <span class="s">&quot;</span><span class="se">\033</span><span class="s">[38;5;${1}m&quot;</span>
+<span class="p">}</span>
+
+<span class="n">function</span> <span class="n">set_bg</span> <span class="p">{</span>
+    <span class="n">printf</span> <span class="s">&quot;</span><span class="se">\033</span><span class="s">[48;5;${1}m&quot;</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">ROW_START</span> <span class="n">in</span> <span class="err">$</span><span class="p">(</span><span class="n">seq</span> <span class="mi">165</span> <span class="mi">6</span> <span class="mi">195</span><span class="p">;</span> <span class="n">seq</span> <span class="mi">231</span> <span class="o">-</span><span class="mi">6</span> <span class="mi">201</span><span class="p">)</span>
+<span class="k">do</span>
+    <span class="n">BLOCK_STARTS</span><span class="o">=</span><span class="p">(</span>
+      <span class="err">$</span><span class="n">ROW_START</span>
+      <span class="err">$</span><span class="p">((</span><span class="err">$</span><span class="n">ROW_START</span> <span class="o">-</span> <span class="mi">77</span><span class="p">))</span>
+      <span class="err">$</span><span class="p">((</span><span class="err">$</span><span class="n">ROW_START</span> <span class="o">-</span> <span class="mi">144</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">BLOCK_ENDS</span><span class="o">=</span><span class="p">(</span>
+      <span class="err">$</span><span class="p">((</span><span class="err">$</span><span class="p">{</span><span class="n">BLOCK_STARTS</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span> <span class="o">-</span> <span class="mi">5</span><span class="p">))</span>
+      <span class="err">$</span><span class="p">((</span><span class="err">$</span><span class="p">{</span><span class="n">BLOCK_STARTS</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span> <span class="o">+</span> <span class="mi">5</span><span class="p">))</span>
+      <span class="err">$</span><span class="p">((</span><span class="err">$</span><span class="p">{</span><span class="n">BLOCK_STARTS</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span> <span class="o">-</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">SEQD</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="mi">1</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">BLOCK</span> <span class="n">in</span> <span class="err">$</span><span class="p">(</span><span class="n">seq</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">do</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="err">$</span><span class="p">(</span><span class="n">seq</span> <span class="err">$</span><span class="p">{</span><span class="n">BLOCK_STARTS</span><span class="p">[</span><span class="err">$</span><span class="n">BLOCK</span><span class="p">]}</span> <span class="err">$</span><span class="p">{</span><span class="n">SEQD</span><span class="p">[</span><span class="err">$</span><span class="n">BLOCK</span><span class="p">]}</span> <span class="err">$</span><span class="p">{</span><span class="n">BLOCK_ENDS</span><span class="p">[</span><span class="err">$</span><span class="n">BLOCK</span><span class="p">]})</span>
+        <span class="k">do</span>
+            <span class="n">set_bg</span> <span class="err">$</span><span class="n">i</span>
+            <span class="n">printf</span> <span class="s">&quot;%4d &quot;</span> <span class="err">$</span><span class="n">i</span>
+        <span class="n">done</span>
+
+        <span class="n">printf</span> <span class="s">&quot;</span><span class="se">\033</span><span class="s">[0m &quot;</span>
+    <span class="n">done</span>
+    <span class="n">printf</span> <span class="s">&quot;</span><span class="se">\033</span><span class="s">[0m</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="n">done</span>
+
+<span class="cp"># Reset colors</span>
+<span class="n">printf</span> <span class="s">&quot;</span><span class="se">\033</span><span class="s">[0m&quot;</span></code></pre></div>
+
+<h3>256 Colors</h3>
+
+<p>Testing the script in a terminal window should have an output like:</p>
+
+<p><a href="/assets/content-images/tmux-256-colors.png"><img src="/assets/content-images/tmux-256-colors.png" alt="256 Colors"></a></p>
+
+<p>This is also what you should see, when you configure tmux to handle 256 colors and run the script inside tmux.</p>
+
+<h3>16 Colors</h3>
+
+<p>This is how it looks like when tmux maps your 256 color output down to 16 colors.</p>
+
+<p><a href="/assets/content-images/tmux-16-colors.png"><img src="/assets/content-images/tmux-16-colors.png" alt="16 Colors"></a></p>
+
+<h2>Solution</h2>
+
+<p>Sadly it is not possible to configure this in <code>.tmux.conf</code>.</p>
+
+<p>A solution is to add following line to your <code>.bashrc</code></p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">alias tmux=&quot;TERM=xterm-256color tmux&quot;
+</code></pre></div>
+<p>or</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">alias tmux=&quot;tmux -2&quot;
+</code></pre></div>
+    </section>
+</article>
+<footer id="post-meta" class="clearfix">
+    <a href="http://twitter.com/mserdarsanli">
+        <img class="avatar" src="/assets/images/avatar.jpg">
+        <div>
+            <span class="dark">Mustafa Serdar Sanli</span>
+            <span>Blogging about stuffs</span>
+        </div>
+    </a>
+
+    <section id="sharing">
+        <a class="twitter" href="https://twitter.com/intent/tweet?text=https://mserdarsanli.github.io/2015/tmux-colors/ - Tmux Color Handling by @mserdarsanli"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+    </section>
+</footer>
+
+<!-- Disqus comments -->
+
+
+<!-- Archive post list -->
+
+    <ul id="post-list" class="archive readmore">
+        <h3>Read more</h3>
+        
+            <li>
+                <a href="/2015/tmux-colors/">Tmux Color Handling<aside class="dates">Sep 30</aside></a>
+            </li>
+        
+            <li>
+                <a href="/2015/vim-inside-tmux-256-colors/">How To Run Vim in 256 Color Mode<aside class="dates">Sep 27</aside></a>
+            </li>
+        
+    </ul>
+
+
+
+
+
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/highlight.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-68150562-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>
+
+
+
