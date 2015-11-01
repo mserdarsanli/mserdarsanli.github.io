@@ -79,6 +79,14 @@ var Color = (function () {
     Color.prototype.CssRgba = function () {
         return 'rgba(' + this.r + ', ' + this.g + ', ' + this.b + ', 1)';
     };
+    // Returns color in hex form like #rrggbb
+    Color.prototype.Hex = function () {
+        var res = '#';
+        res += (this.r < 16 ? '0' : '') + this.r.toString(16);
+        res += (this.g < 16 ? '0' : '') + this.g.toString(16);
+        res += (this.b < 16 ? '0' : '') + this.b.toString(16);
+        return res;
+    };
     return Color;
 })();
 // Copyright 2015 Mustafa Serdar Sanli
@@ -105,6 +113,27 @@ var TermColor = (function () {
     }
     TermColor.prototype.ColorCode = function () {
         return this.colorCode256;
+    };
+    // Returns term code for vim, to be used with ctermfg=
+    // Return color code, or NONE
+    TermColor.prototype.VimTermCode = function () {
+        if (this.colorCode256 == -1) {
+            return 'NONE';
+        }
+        else {
+            return '' + this.colorCode256;
+        }
+    };
+    // Returns gui code for vim, to be used with guifg=
+    // Return color in hex, or NONE
+    TermColor.prototype.VimGuiCode = function () {
+        if (this.colorCode256 == -1) {
+            return 'NONE';
+        }
+        else {
+            var col = UserTerminal.GetColor(this.colorCode256);
+            return col.Hex();
+        }
     };
     return TermColor;
 })();
@@ -1444,37 +1473,47 @@ var Page = (function () {
         Vim.LanguageSyntax[language] = res['lang-syntax'];
         Vim.SelectLanguage(language);
     };
-    Page.SaveCurrentStyle = function () {
+    Page.GenerateColorschemeFile = function (csName) {
         // Create colorscheme file contents
         var fileContents = '" Created with VimArtisan (Vim Colorscheme Generator)\n' +
             '" http://mserdarsanli.github.io/VimArtisan/index.html\n' +
+            '\n' +
+            'hi clear\n' +
+            '\n' +
+            'if exists("syntax_on")\n' +
+            '    syntax reset\n' +
+            'endif\n' +
+            '\n' +
+            'let colors_name = "' + csName + '"\n' +
+            '\n' +
+            'set bg&\n' +
             '\n';
         for (var groupName in Vim.SyntaxGroups) {
             var line = 'hi ' + groupName + '\t';
             var syntax = Vim.SyntaxGroups[groupName];
             // TODO support linkto
-            var fgColor = syntax.GetFgColor().ColorCode();
-            var bgColor = syntax.GetBgColor().ColorCode();
-            if (fgColor == -1) {
-                line += ' ctermfg=NONE';
-            }
-            else {
-                line += ' ctermfg=' + fgColor;
-            }
-            if (bgColor == -1) {
-                line += ' ctermbg=NONE';
-            }
-            else {
-                line += ' ctermbg=' + bgColor;
-            }
+            var fgColor = syntax.GetFgColor();
+            var bgColor = syntax.GetBgColor();
+            line += ' ctermfg=' + fgColor.VimTermCode();
+            line += ' ctermbg=' + bgColor.VimTermCode();
+            line += ' cterm=NONE';
+            line += ' guifg=' + fgColor.VimGuiCode();
+            line += ' guibg=' + bgColor.VimGuiCode();
+            line += ' gui=NONE';
             fileContents += line + '\n';
         }
-        var a = $('<a>')
-            .attr('href', 'data:application/octet-stream;base64,' + window.btoa(fileContents))
-            .attr('download', 'new-scheme.vim')
-            .text('Link to download');
-        $('#color-scheme-save-body').html(a);
+        return fileContents;
+    };
+    Page.SaveCurrentStyle = function () {
         $('#color-scheme-save-modal').modal('show');
+    };
+    Page.DownloadColorscheme = function () {
+        var csName = document.getElementById('colorscheme-name-input').value;
+        var a = document.getElementById('colorscheme-download-anchor');
+        a.href = 'data:application/octet-stream;base64,'
+            + window.btoa(Page.GenerateColorschemeFile(csName));
+        a['download'] = csName + '.vim';
+        a.click();
     };
     Page.ConfigureTerminal = function () {
         $('#configure-terminal-modal').modal('show');
