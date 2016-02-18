@@ -182,6 +182,46 @@ var SyntaxGroup = (function () {
         self.linkto = 'NO_LINK';
         return self;
     };
+    SyntaxGroup.Parse = function (line) {
+        // Try parsing `hi link`
+        if (/hi\s*link/.exec(line)) {
+            var res = /hi\s*link\s*(\w*)\s*(\w*)/.exec(line);
+            if (!res) {
+                return null;
+            }
+            return SyntaxGroup.FromLink(res[1], res[2]);
+        }
+        // Parse `hi` line, example:
+        // hi SpecialKey	 ctermfg=4 ctermbg=NONE cterm=NONE guifg=#3465a4 guibg=NONE gui=NONE
+        var groupName;
+        var ctermfg;
+        var ctermbg;
+        // Extract group name
+        {
+            var res = /hi\s(\w*)\s/.exec(line);
+            if (!res) {
+                return null;
+            }
+            groupName = res[1];
+        }
+        // Extract ctermfg
+        {
+            var res = /.*\sctermfg\s*=\s*(\w*)/i.exec(line);
+            if (!res) {
+                return null;
+            }
+            ctermfg = VimColor.Parse(res[1]);
+        }
+        // Extract ctermbg
+        {
+            var res = /.*\sctermbg\s*=\s*(\w*)/i.exec(line);
+            if (!res) {
+                return null;
+            }
+            ctermbg = VimColor.Parse(res[1]);
+        }
+        return SyntaxGroup.FromColor(groupName, ctermfg, ctermbg);
+    };
     SyntaxGroup.prototype.IsLink = function () {
         return this.isLink;
     };
@@ -305,6 +345,8 @@ var SyntaxGroup = (function () {
         return tagName;
     };
     ;
+    // TODO: Group name should behave case insensitively.
+    // https://github.com/mserdarsanli/VimArtisan/issues/2
     SyntaxGroup.prototype.GetGroupName = function () {
         return this.name;
     };
@@ -327,6 +369,75 @@ var SyntaxGroup = (function () {
     };
     ;
     return SyntaxGroup;
+})();
+// Copyright 2016 Mustafa Serdar Sanli
+//
+// This file is part of VimArtisan.
+//
+// VimArtisan is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// VimArtisan is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with VimArtisan.  If not, see <http://www.gnu.org/licenses/>.
+// Utility class for mapping Vim color names to terminal color codes.
+// Only 256-color terminals are supported.
+var VimColor = (function () {
+    function VimColor() {
+    }
+    // Parses color name or value
+    // Accepted values: 'yellow', 'none', '-1', '13' ...
+    VimColor.Parse = function (vimColorName) {
+        var numberVal = parseInt(vimColorName);
+        if (!isNaN(numberVal) && numberVal >= -1 && numberVal <= 255) {
+            return new TermColor(numberVal);
+        }
+        var name = vimColorName.toLowerCase();
+        if (!VimColor.ColorValues.hasOwnProperty(name)) {
+            console.log('Unable to parse vim color name: ', vimColorName);
+            return new TermColor(-1);
+        }
+        return new TermColor(VimColor.ColorValues[name]);
+    };
+    // Following data is extracted from Vim src/syntax.c
+    // All made lowercase since Vim handles names case insensitively.
+    VimColor.ColorValues = {
+        "black": 0,
+        "darkblue": 4,
+        "darkgreen": 2,
+        "darkcyan": 6,
+        "darkred": 1,
+        "darkmagenta": 5,
+        "brown": 130,
+        "darkyellow": 130,
+        "gray": 248,
+        "grey": 248,
+        "lightgray": 7,
+        "lightgrey": 7,
+        "darkgray": 242,
+        "darkgrey": 242,
+        "blue": 12,
+        "lightblue": 81,
+        "green": 10,
+        "lightgreen": 121,
+        "cyan": 14,
+        "lightcyan": 159,
+        "red": 9,
+        "lightred": 224,
+        "magenta": 13,
+        "lightmagenta": 225,
+        "yellow": 11,
+        "lightyellow": 229,
+        "white": 15,
+        "none": -1
+    };
+    return VimColor;
 })();
 // Copyright 2015 Mustafa Serdar Sanli
 //
@@ -368,13 +479,13 @@ var VimConfigManager = (function () {
         for (var attr in this.BaseSyntaxGroups) {
             this.SyntaxGroups[attr] = this.BaseSyntaxGroups[attr];
         }
-        var csSyntax = this.BuiltinColorschemes[this.SelectedColorscheme]['syntax-groups'];
-        for (var attr in csSyntax) {
-            this.SyntaxGroups[attr] = csSyntax[attr];
-        }
         var langSyntax = this.LanguageSyntax[this.SelectedLanguage]['syntax-groups'];
         for (var attr in langSyntax) {
             this.SyntaxGroups[attr] = langSyntax[attr];
+        }
+        var csSyntax = this.BuiltinColorschemes[this.SelectedColorscheme]['syntax-groups'];
+        for (var attr in csSyntax) {
+            this.SyntaxGroups[attr] = csSyntax[attr];
         }
         // TODO Remove unused grups again?
         // Clear up unnecessary ones
@@ -452,6 +563,28 @@ var VimConfigManager = (function () {
         }
         // Replace with new table
         ColorTable.Create().AppendTo(wrapperDiv);
+    };
+    VimConfigManager.prototype.LoadColorschemeFile = function (fileName, contents) {
+        console.log('Loading colorscheme file: ', fileName);
+        var colorscheme = {};
+        // Since the colorscheme may not have all the required groups,
+        // Inherit them from default colorscheme.
+        colorscheme = $.extend({}, Vim.BuiltinColorschemes['default']['syntax-groups']);
+        var trimFn = function (s) {
+            return s.trim();
+        };
+        var lines = contents.split('\n').map(trimFn);
+        for (var _i = 0; _i < lines.length; _i++) {
+            var line = lines[_i];
+            var sg = SyntaxGroup.Parse(line);
+            if (!sg) {
+                continue;
+            }
+            colorscheme[sg.GetGroupName()] = sg;
+        }
+        this.BuiltinColorschemes[fileName] = { 'syntax-groups': colorscheme };
+        Page.ColorschemeLoaded();
+        Page.UpdateColorschemesDropdown();
     };
     return VimConfigManager;
 })();
@@ -1396,6 +1529,8 @@ var Page = (function () {
                 languagesListElem.appendChild(li);
             }
         }
+        var loadColorschemeBtn = document.getElementById("load-colorscheme-button");
+        loadColorschemeBtn.addEventListener('click', Page.LoadColorscheme);
         Page.LoadBaseSyntaxGroups();
         Page.LoadBuiltinColorschemes();
         // Load initial terminals for the default language
@@ -1515,6 +1650,28 @@ var Page = (function () {
         a['download'] = csName + '.vim';
         a.click();
     };
+    Page.LoadColorschemeModal = function () {
+        $('#load-colorscheme-button').show();
+        $('#load-colorscheme-button-done').hide();
+        $('#color-scheme-load-modal').modal('show');
+    };
+    Page.LoadColorscheme = function () {
+        var filePicker = document.getElementById('load-colorscheme-file');
+        if (filePicker.files.length != 1) {
+            alert('No file selected');
+            return;
+        }
+        var file = filePicker.files[0];
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            Vim.LoadColorschemeFile(file.name, reader.result);
+        };
+        reader.readAsText(file);
+    };
+    Page.ColorschemeLoaded = function () {
+        $('#load-colorscheme-button').hide();
+        $('#load-colorscheme-button-done').show();
+    };
     Page.ConfigureTerminal = function () {
         $('#configure-terminal-modal').modal('show');
     };
@@ -1529,6 +1686,15 @@ var Page = (function () {
     Page.BuiltinColorschemesLoaded = function (res) {
         Vim.BuiltinColorschemes = eval(res);
         console.log('BuiltinColorschemes', Vim.BuiltinColorschemes);
+        Page.UpdateColorschemesDropdown();
+        // Load the default colorscheme
+        console.log('Loading default colorscheme');
+        Vim.SelectColorscheme('default');
+    };
+    /**
+     * Should be called when new colorschemes are loaded.
+     */
+    Page.UpdateColorschemesDropdown = function () {
         // Add colorschemes list to the drowdown
         var btn = document.getElementById('vim-builtin-colorscheme-picker-button');
         btn.classList.remove('disabled');
@@ -1546,9 +1712,6 @@ var Page = (function () {
             li.appendChild(a);
             ul.appendChild(li);
         }
-        // Load the default colorscheme
-        console.log('Loading default colorscheme');
-        Vim.SelectColorscheme('default');
     };
     // TODO move to another class
     Page.LastScrolledGroupTriangle = undefined;
