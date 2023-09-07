@@ -1,0 +1,83 @@
+(function() {
+var res = {};
+res['lang-syntax'] = (function() {
+var res = {};
+res['lang'] = 'Rules for Lang: lua';
+res['syntax-groups'] = {};
+res['syntax-groups']['SpecialKey'] = SyntaxGroup.FromColor('SpecialKey', new TermColor(4), new TermColor(-1));
+res['syntax-groups']['NonText'] = SyntaxGroup.FromColor('NonText', new TermColor(12), new TermColor(-1));
+res['syntax-groups']['Directory'] = SyntaxGroup.FromColor('Directory', new TermColor(4), new TermColor(-1));
+res['syntax-groups']['IncSearch'] = SyntaxGroup.FromColor('IncSearch', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['ModeMsg'] = SyntaxGroup.FromColor('ModeMsg', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['LineNr'] = SyntaxGroup.FromColor('LineNr', new TermColor(130), new TermColor(-1));
+res['syntax-groups']['CursorLineNr'] = SyntaxGroup.FromColor('CursorLineNr', new TermColor(130), new TermColor(-1));
+res['syntax-groups']['StatusLineNC'] = SyntaxGroup.FromColor('StatusLineNC', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['VertSplit'] = SyntaxGroup.FromColor('VertSplit', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['Title'] = SyntaxGroup.FromColor('Title', new TermColor(5), new TermColor(-1));
+res['syntax-groups']['VisualNOS'] = SyntaxGroup.FromColor('VisualNOS', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['WildMenu'] = SyntaxGroup.FromColor('WildMenu', new TermColor(0), new TermColor(11));
+res['syntax-groups']['Folded'] = SyntaxGroup.FromColor('Folded', new TermColor(4), new TermColor(248));
+res['syntax-groups']['FoldColumn'] = SyntaxGroup.FromColor('FoldColumn', new TermColor(4), new TermColor(248));
+res['syntax-groups']['DiffAdd'] = SyntaxGroup.FromColor('DiffAdd', new TermColor(-1), new TermColor(81));
+res['syntax-groups']['DiffChange'] = SyntaxGroup.FromColor('DiffChange', new TermColor(-1), new TermColor(225));
+res['syntax-groups']['DiffDelete'] = SyntaxGroup.FromColor('DiffDelete', new TermColor(12), new TermColor(159));
+res['syntax-groups']['DiffText'] = SyntaxGroup.FromColor('DiffText', new TermColor(-1), new TermColor(9));
+res['syntax-groups']['SignColumn'] = SyntaxGroup.FromColor('SignColumn', new TermColor(4), new TermColor(248));
+res['syntax-groups']['Conceal'] = SyntaxGroup.FromColor('Conceal', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['SpellBad'] = SyntaxGroup.FromColor('SpellBad', new TermColor(-1), new TermColor(224));
+res['syntax-groups']['SpellCap'] = SyntaxGroup.FromColor('SpellCap', new TermColor(-1), new TermColor(81));
+res['syntax-groups']['SpellRare'] = SyntaxGroup.FromColor('SpellRare', new TermColor(-1), new TermColor(225));
+res['syntax-groups']['SpellLocal'] = SyntaxGroup.FromColor('SpellLocal', new TermColor(-1), new TermColor(14));
+res['syntax-groups']['Pmenu'] = SyntaxGroup.FromColor('Pmenu', new TermColor(0), new TermColor(225));
+res['syntax-groups']['PmenuSel'] = SyntaxGroup.FromColor('PmenuSel', new TermColor(0), new TermColor(7));
+res['syntax-groups']['PmenuSbar'] = SyntaxGroup.FromColor('PmenuSbar', new TermColor(-1), new TermColor(248));
+res['syntax-groups']['PmenuThumb'] = SyntaxGroup.FromColor('PmenuThumb', new TermColor(-1), new TermColor(0));
+res['syntax-groups']['TabLine'] = SyntaxGroup.FromColor('TabLine', new TermColor(0), new TermColor(7));
+res['syntax-groups']['TabLineSel'] = SyntaxGroup.FromColor('TabLineSel', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['TabLineFill'] = SyntaxGroup.FromColor('TabLineFill', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['CursorColumn'] = SyntaxGroup.FromColor('CursorColumn', new TermColor(-1), new TermColor(7));
+res['syntax-groups']['CursorLine'] = SyntaxGroup.FromColor('CursorLine', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['ColorColumn'] = SyntaxGroup.FromColor('ColorColumn', new TermColor(-1), new TermColor(224));
+res['syntax-groups']['MatchParen'] = SyntaxGroup.FromColor('MatchParen', new TermColor(-1), new TermColor(14));
+res['syntax-groups']['Underlined'] = SyntaxGroup.FromColor('Underlined', new TermColor(5), new TermColor(-1));
+res['syntax-groups']['Ignore'] = SyntaxGroup.FromColor('Ignore', new TermColor(15), new TermColor(-1));
+res['syntax-groups']['luaTodo'] = SyntaxGroup.FromLink('luaTodo', 'Todo');
+res['syntax-groups']['luaComment'] = SyntaxGroup.FromLink('luaComment', 'Comment');
+res['syntax-groups']['luaInnerComment'] = SyntaxGroup.FromColor('luaInnerComment', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaParenError'] = SyntaxGroup.FromLink('luaParenError', 'Error');
+res['syntax-groups']['luaSpecial'] = SyntaxGroup.FromLink('luaSpecial', 'SpecialChar');
+res['syntax-groups']['luaIfThen'] = SyntaxGroup.FromColor('luaIfThen', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaElseifThen'] = SyntaxGroup.FromColor('luaElseifThen', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaElse'] = SyntaxGroup.FromLink('luaElse', 'Conditional');
+res['syntax-groups']['luaThenEnd'] = SyntaxGroup.FromColor('luaThenEnd', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaBlock'] = SyntaxGroup.FromColor('luaBlock', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaLoopBlock'] = SyntaxGroup.FromColor('luaLoopBlock', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaIn'] = SyntaxGroup.FromLink('luaIn', 'Operator');
+res['syntax-groups']['luaStatement'] = SyntaxGroup.FromLink('luaStatement', 'Statement');
+res['syntax-groups']['luaParen'] = SyntaxGroup.FromColor('luaParen', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaTable'] = SyntaxGroup.FromLink('luaTable', 'Structure');
+res['syntax-groups']['luaBraceError'] = SyntaxGroup.FromLink('luaBraceError', 'Error');
+res['syntax-groups']['luaTableBlock'] = SyntaxGroup.FromColor('luaTableBlock', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaError'] = SyntaxGroup.FromLink('luaError', 'Error');
+res['syntax-groups']['luaFunction'] = SyntaxGroup.FromLink('luaFunction', 'Function');
+res['syntax-groups']['luaFunctionBlock'] = SyntaxGroup.FromColor('luaFunctionBlock', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['luaCond'] = SyntaxGroup.FromLink('luaCond', 'Conditional');
+res['syntax-groups']['luaRepeat'] = SyntaxGroup.FromLink('luaRepeat', 'Repeat');
+res['syntax-groups']['luaLabel'] = SyntaxGroup.FromLink('luaLabel', 'Label');
+res['syntax-groups']['luaOperator'] = SyntaxGroup.FromLink('luaOperator', 'Operator');
+res['syntax-groups']['luaConstant'] = SyntaxGroup.FromLink('luaConstant', 'Constant');
+res['syntax-groups']['luaString2'] = SyntaxGroup.FromLink('luaString2', 'String');
+res['syntax-groups']['luaString'] = SyntaxGroup.FromLink('luaString', 'String');
+res['syntax-groups']['luaNumber'] = SyntaxGroup.FromLink('luaNumber', 'Number');
+res['syntax-groups']['luaFunc'] = SyntaxGroup.FromLink('luaFunc', 'Identifier');
+res['syntax-groups']['luaFor'] = SyntaxGroup.FromLink('luaFor', 'Repeat');
+return res;
+} ())
+;
+res['snippets'] = [];
+res['snippets'].push({
+  'title': 'File Input/Output',
+  'terminal-contents': '<v-normal>inFile  = </v-normal><vlua-func>io.open</vlua-func><v-normal>(</v-normal><vlua-string>&quot;input.txt&quot;</vlua-string><v-normal>, </v-normal><vlua-string>&quot;r&quot;</vlua-string><v-normal>)                                             </v-normal>\n<v-normal>data = inFile:read(</v-normal><vlua-string>&quot;*all&quot;</vlua-string><v-normal>) </v-normal><vlua-comment>-- may be abbreviated to &quot;*a&quot;;</vlua-comment><v-normal>                       </v-normal>\n<v-normal>                           </v-normal><vlua-comment>-- other options are &quot;*line&quot;, </vlua-comment><v-normal>                       </v-normal>\n<v-normal>                           </v-normal><vlua-comment>-- or the number of characters to read.</vlua-comment><v-normal>              </v-normal>\n<v-normal>inFile:close()                                                                  </v-normal>\n<v-normal>                                                                                </v-normal>\n<v-normal>outFile = </v-normal><vlua-func>io.open</vlua-func><v-normal>(</v-normal><vlua-string>&quot;output.txt&quot;</vlua-string><v-normal>, </v-normal><vlua-string>&quot;w&quot;</vlua-string><v-normal>)                                            </v-normal>\n<v-normal>outfile:write(data)                                                             </v-normal>\n<v-normal>outfile:close()                                                                 </v-normal>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-normal>                                                                                </v-normal>\n'
+});
+return res;
+}())

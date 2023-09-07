@@ -1,0 +1,476 @@
+<!doctype html>
+<!--
+Copyright 2023 Mustafa Serdar Sanli
+
+This file is part of FloatInfo.
+
+FloatInfo is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+FloatInfo is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with FloatInfo.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>FloatInfo</title>
+    <link rel="icon" type="image/png" href="icon.png">
+
+    <link rel="stylesheet" href="open-props-1.5.15.min.css"/><!-- See https://github.com/argyleink/open-props -->
+    <style>
+
+:root {
+    --sign-color:  var(--orange-7);
+    --regime-color:  var(--blue-9);
+    --exponent-color: var(--blue-7);
+    --expbias-color: var(--blue-6);
+    --mantissa-color: var(--green-8);
+    --mbits-color: var(--teal-7);
+    --normalized-color: var(--red-7);
+    --footer-height: 12em;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    font-family: var(--font-sans);
+    margin: 0 auto;
+    min-height: 100%;
+}
+
+:where(h1, h2, h3, h4) {
+    margin-top: 0px;
+}
+
+:where(h3) {
+    color: var(--gray-5);
+}
+
+:where(.link) {
+    margin-bottom: 0.5em;
+    color: var(--gray-3);
+    font-weight: bold;
+}
+
+:where(.link > a) {
+    color: var(--gray-3);
+    font-weight: bold;
+}
+
+.non-footer-bits {
+    min-height: calc(100vh - var(--footer-height));
+}
+
+.footer {
+    height: var(--footer-height);
+    background-color: var(--gray-8);
+    color: var(--gray-2);
+}
+
+.main-content {
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.large-content {
+    margin: 0 2em;
+    overflow-x: auto;
+}
+
+:where(math) {
+    font-size: var(--font-size-4);
+    font-family: var(--font-mono);
+    padding: 0.5em 0;
+}
+
+:where(td, th) {
+  padding: 0;
+}
+
+.definition-table {
+    table-layout: fixed;
+    width: 100%;
+    font-size: var(--font-size-1);
+}
+
+:where(.definition-table tr:nth-child(odd)) {
+    background-color: var(--stone-1);
+}
+
+:where(.definition-table td) {
+    padding: 0.2em;
+}
+
+.header-col {
+    width: 12em;
+}
+
+.content-col {
+    word-wrap: break-word;
+}
+
+:where(th) {
+    width: 4em;
+    text-align: left;
+}
+
+:where(button) {
+    padding: 0.8em;
+    margin-bottom: 0.8em;
+    border: var(--border-size-1) solid var(--gray-4);
+}
+
+:where(.byte-row > td) {
+    text-align: center;
+    font-family: monospace;
+    font-size: larger;
+    border: solid 1px var(--gray-5);
+    padding: 0.3em;
+}
+
+
+.identifier { font-weight: bold; }
+.identifier[data-ic="1"]       { color: var(--sign-color);       }
+.identifier[data-ic="2"]   { color: var(--exponent-color);   }
+.identifier[data-ic="7"]    { color: var(--expbias-color);    }
+.identifier[data-ic="3"]   { color: var(--mantissa-color);   }
+.identifier[data-ic="4"]      { color: var(--mbits-color);      }
+.identifier[data-ic="6"] { color: var(--normalized-color); }
+.identifier[data-ic="5"]     { color: var(--regime-color);     }
+
+
+.button-bit { width: 100%; }
+button[data-bt="5"]      { color: black;                    background-color: var(--gray-3);         }
+button[data-bt="3"]     { color: white; font-weight: bold; background-color: var(--sign-color);     }
+button[data-bt="4"]   { color: white; font-weight: bold; background-color: var(--regime-color);   }
+button[data-bt="2"] { color: white; font-weight: bold; background-color: var(--exponent-color); }
+button[data-bt="1"] { color: white; font-weight: bold; background-color: var(--mantissa-color); }
+
+    </style>
+  </head>
+  <body>
+   <div class="non-footer-bits">
+    <div class="main-content">
+    <h1>FloatInfo</h1>
+    <div>
+      <button onclick="setFloatType(4);">binary32 (float)</button>
+      <button onclick="setFloatType(5);">binary64 (double)</button>
+      <button onclick="setFloatType(2);">binary16</button>
+      <button onclick="setFloatType(3);">bfloat16</button>
+      <button onclick="setFloatType(1);">minifloat</button>
+      <button onclick="setFloatType(9);">posit64</button>
+      <button onclick="setFloatType(8);">posit32</button>
+      <button onclick="setFloatType(7);">posit16</button>
+      <button onclick="setFloatType(6);">posit8</button>
+    </div>
+
+    <h2 class="fp-au" data-uc="13">🠕 select a float type</h2>
+
+    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+      <tr class="byte-row">
+        <td colspan="8">Byte 7</td>
+        <td colspan="8">Byte 6</td>
+        <td colspan="8">Byte 5</td>
+        <td colspan="8">Byte 4</td>
+      </tr>
+      <tr>
+        <td><button id="fp-bit63" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit62" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit61" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit60" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit59" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit58" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit57" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit56" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit55" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit54" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit53" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit52" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit51" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit50" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit49" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit48" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit47" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit46" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit45" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit44" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit43" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit42" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit41" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit40" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit39" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit38" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit37" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit36" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit35" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit34" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit33" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit32" class="button-bit" data-bt="5">0</button></td>
+      </tr>
+      <tr class="byte-row">
+        <td colspan="8">Byte 3</td>
+        <td colspan="8">Byte 2</td>
+        <td colspan="8">Byte 1</td>
+        <td colspan="8">Byte 0</td>
+      </tr>
+      <tr>
+        <td><button id="fp-bit31" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit30" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit29" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit28" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit27" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit26" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit25" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit24" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit23" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit22" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit21" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit20" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit19" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit18" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit17" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit16" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit15" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit14" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit13" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit12" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit11" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit10" class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit9"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit8"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit7"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit6"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit5"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit4"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit3"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit2"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit1"  class="button-bit" data-bt="5">0</button></td>
+        <td><button id="fp-bit0"  class="button-bit" data-bt="5">0</button></td>
+      </tr>
+    </table>
+
+    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; display:none;" class="fp-as" data-uc="7">
+      <tr>
+        <th>Set</th>
+        <td>
+          <button onclick="setValue(gFE, 1);" title="Zero!">0.0</button>
+          <button onclick="setValue(gFE, 2);" title="One!">1.0</button>
+          <button class="fp-as" data-uc="5" onclick="setValue(gFE, 4);" title="positive infinity">infinity</button>
+          <button class="fp-as" data-uc="5" onclick="setValue(gFE, 5);">quiet NaN</button>
+          <button class="fp-as" data-uc="5" onclick="setValue(gFE, 6);">signaling NaN</button>
+          <button class="fp-as" data-uc="6" onclick="setValue(gFE, 3);" title="Not a real">NaR</button>
+          <button class="fp-as" data-uc="5" onclick="setValue(gFE, 7);" title="Minimim positive normalized value">min</button>
+          <button class="fp-as" data-uc="6" onclick="setValue(gFE, 7);" title="Minimum positive malue">min</button>
+          <button onclick="setValue(gFE, 8);" title="Maximum finite value">max</button>
+          <button onclick="setValue(gFE, 9);" title="Difference between 1.0 and next value">epsilon</button>
+          <button class="fp-as" data-uc="5" onclick="setValue(gFE, 10);" title="Minimum positive denormal value">denorm_min</button>
+        </td>
+      </tr>
+      <tr>
+        <th>Edit</th>
+        <td>
+          <button onclick="setValue(gFE, 11);" title="Flips the sign">negate</button>
+          <button onclick="setValue(gFE, 12);" title="Next value towards -inf">prev</button>
+          <button onclick="setValue(gFE, 13);" title="Next value towards inf">next</button>
+          <button class="fp-as" data-uc="6" data-bt="4" onclick="setValue(gFE, 19)" title="Decrement regime">&nbsp;&nbsp;-&nbsp;&nbsp;</button>
+          <button class="fp-as" data-uc="6" data-bt="4" onclick="setValue(gFE, 18)" title="Increment regime">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+          <button data-bt="2" onclick="setValue(gFE, 17)" title="Decrement exponent">&nbsp;&nbsp;-&nbsp;&nbsp;</button>
+          <button data-bt="2" onclick="setValue(gFE, 16)" title="Increment exponent">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+          <button data-bt="1" onclick="setValue(gFE, 15)" title="Decrement mantissa">&nbsp;&nbsp;-&nbsp;&nbsp;</button>
+          <button data-bt="1" onclick="setValue(gFE, 14)" title="Increment mantissa">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+        </td>
+      </tr>
+    </table>
+
+
+
+    <table class="fp-as definition-table" data-uc="5" border="0" cellpadding="0" cellspacing="0" style="display:none;">
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="1">sign</code></td><td class="content-col"><code><span class="fp-au" data-uc="1">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="2">exponent</code></td><td class="content-col"><code><span class="fp-au" data-uc="2">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="7">expbias</code></td><td class="content-col"><code><span class="fp-au" data-uc="7">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="3">mantissa</code></td><td class="content-col"><code><span class="fp-au" data-uc="3">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="4">mbits</code></td><td class="content-col"><code><span class="fp-au" data-uc="4">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="6">N</code></td><td class="content-col"><code><span class="fp-au" data-uc="6">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code>bytes</code></td><td class="content-col"><code><span class="fp-au" data-uc="10">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code>value&nbsp;(base10)</code></td><td class="content-col"><code><span class="fp-au" data-uc="14">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code>value&nbsp;(base2)</code></td><td class="content-col"><code><span class="fp-au" data-uc="15">???</span></code></td>
+      </tr>
+    </table>
+
+    <table class="fp-as definition-table" data-uc="6" border="0" cellpadding="0" cellspacing="0" style="display:none;">
+        <td class="header-col"><code class="identifier" data-ic="1">sign</code></td><td class="content-col"><code><span class="fp-au" data-uc="1">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="5">regime</code></td><td class="content-col"><code><span class="fp-au" data-uc="5">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="2">exponent</code></td><td class="content-col"><code><span class="fp-au" data-uc="2">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="3">mantissa</code></td><td class="content-col"><code><span class="fp-au" data-uc="3">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code class="identifier" data-ic="4">mbits</code></td><td class="content-col"><code><span class="fp-au" data-uc="4">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code>bytes</code></td><td class="content-col"><code><span class="fp-au" data-uc="10">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code>value&nbsp;(base10)</code></td><td class="content-col"><code><span class="fp-au" data-uc="14">???</span></code></td>
+      </tr>
+      <tr>
+        <td class="header-col"><code>value&nbsp;(base2)</code></td><td class="content-col"><code><span class="fp-au" data-uc="15">???</span></code></td>
+      </tr>
+    </table>
+
+    </div>
+
+    <div class="fp-as" data-uc="7" style="display: none;">
+      <div class="fp-au" data-uc="16">
+      </div>
+    </div>
+
+    </div>
+    <div class="footer">
+    <div class="main-content">
+      <div style="display: grid; grid-template-columns: auto auto auto; padding-top: 2em;">
+        <div>
+           <h3>References</h3>
+           <div class="link"><a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754</a></div>
+           <div class="link"><a href="https://posithub.org/">Posit Standard</a></div>
+        </div>
+        <div>
+           <h3>Powered By</h3>
+           <div class="link"><a href="https://emscripten.org/">Emscripten</a></div>
+           <div class="link"><a href="https://developer.mozilla.org/en-US/docs/Web/MathML">MathML</a></div>
+           <div class="link"><a href="https://open-props.style/">Open Props</a></div>
+        </div>
+        <div>
+           <h3>Project</h3>
+           <div class="link">FloatInfo v1.0</div>
+           <div class="link"><a href="https://github.com/mserdarsanli/FloatInfo">Source Code</a></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+<script type="text/javascript" src="floatinfo.js"></script>
+  <script>
+    var E = null;
+
+    function getString(e, c) {
+        let cpp_s = E._e_get_string(e, c);
+        return E.UTF8ToString(cpp_s);
+    }
+
+    function getInt(e, c) {
+        return E._e_get_int(e, c);
+    }
+
+    function setValue(e, c, valStr) {
+        var valStrCpp;
+        if (valStr == undefined) {
+            valStrCpp = 0;
+        } else {
+            valStrCpp = E.stringToNewUTF8(valStr);
+        }
+        E._e_set_value(e, c, valStrCpp);
+        E._free(valStrCpp);
+
+        refresh_bits();
+    }
+
+    function refresh_bits() {
+        for (let el of document.getElementsByClassName('fp-au')) {
+            el.innerHTML = getString(gFE, el.dataset.uc);
+        }
+
+        for (let el of document.getElementsByClassName('fp-as')) {
+            el.style.display = (getInt(gFE, parseInt(el.dataset.uc)) == 1 ? '' : 'none');
+        }
+
+        var s = getString(gFE, 9);
+        for (let i = 0; i < 64; ++i) {
+            let el = document.getElementById(`fp-bit${i}`);
+            if (i < s.length) {
+                el.innerText = s[i];
+            } else {
+                el.innerText = '-';
+            }
+
+            el.dataset.bt = getInt(gFE, i + 8);
+        }
+
+        var s = getString(gFE, 11);
+        history.replaceState(null, null, s);
+    };
+
+
+    function setFloatType(typeCode) {
+        gFE = E._get_fe(typeCode);
+        setValue(gFE, 1);
+    }
+
+    function cloneTemplate(nodeid, doSubs) {
+        var template = document.getElementById(nodeid);
+        var clone = template.content.cloneNode(true);
+
+        if (doSubs) {
+            for (let elem of clone.children[0].getElementsByClassName('identifier')) {
+                elem.classList.add('fp-au');
+                elem.dataset.uc = elem.dataset.ic;
+            }
+        }
+
+        return clone;
+    }
+
+    for (let i = 0; i < 64; ++i) {
+        document.getElementById(`fp-bit${i}`).addEventListener('click', function() {setValue(gFE, i + 21);});
+    }
+
+    createMyModule().then(function(Module) {
+        E = Module;
+
+        for (let typeIdx = 1; typeIdx < 10; ++typeIdx) {
+            let fe = E._get_fe(typeIdx);
+            let typeName = getString(fe, 12);
+
+            if (location.hash.startsWith('#' + typeName + '=')) {
+                let reprStr = location.hash.substr(2 + typeName.length);
+                gFE = fe;
+                setValue(gFE, 20, reprStr);
+                break;
+            }
+        }
+    });
+
+  </script>
+  </body>
+</html>

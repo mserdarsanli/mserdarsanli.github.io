@@ -1,0 +1,87 @@
+(function() {
+var res = {};
+res['lang-syntax'] = (function() {
+var res = {};
+res['lang'] = 'Rules for Lang: awk';
+res['syntax-groups'] = {};
+res['syntax-groups']['SpecialKey'] = SyntaxGroup.FromColor('SpecialKey', new TermColor(4), new TermColor(-1));
+res['syntax-groups']['NonText'] = SyntaxGroup.FromColor('NonText', new TermColor(12), new TermColor(-1));
+res['syntax-groups']['Directory'] = SyntaxGroup.FromColor('Directory', new TermColor(4), new TermColor(-1));
+res['syntax-groups']['IncSearch'] = SyntaxGroup.FromColor('IncSearch', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['ModeMsg'] = SyntaxGroup.FromColor('ModeMsg', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['LineNr'] = SyntaxGroup.FromColor('LineNr', new TermColor(130), new TermColor(-1));
+res['syntax-groups']['CursorLineNr'] = SyntaxGroup.FromColor('CursorLineNr', new TermColor(130), new TermColor(-1));
+res['syntax-groups']['StatusLineNC'] = SyntaxGroup.FromColor('StatusLineNC', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['VertSplit'] = SyntaxGroup.FromColor('VertSplit', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['Title'] = SyntaxGroup.FromColor('Title', new TermColor(5), new TermColor(-1));
+res['syntax-groups']['VisualNOS'] = SyntaxGroup.FromColor('VisualNOS', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['WildMenu'] = SyntaxGroup.FromColor('WildMenu', new TermColor(0), new TermColor(11));
+res['syntax-groups']['Folded'] = SyntaxGroup.FromColor('Folded', new TermColor(4), new TermColor(248));
+res['syntax-groups']['FoldColumn'] = SyntaxGroup.FromColor('FoldColumn', new TermColor(4), new TermColor(248));
+res['syntax-groups']['DiffAdd'] = SyntaxGroup.FromColor('DiffAdd', new TermColor(-1), new TermColor(81));
+res['syntax-groups']['DiffChange'] = SyntaxGroup.FromColor('DiffChange', new TermColor(-1), new TermColor(225));
+res['syntax-groups']['DiffDelete'] = SyntaxGroup.FromColor('DiffDelete', new TermColor(12), new TermColor(159));
+res['syntax-groups']['DiffText'] = SyntaxGroup.FromColor('DiffText', new TermColor(-1), new TermColor(9));
+res['syntax-groups']['SignColumn'] = SyntaxGroup.FromColor('SignColumn', new TermColor(4), new TermColor(248));
+res['syntax-groups']['Conceal'] = SyntaxGroup.FromColor('Conceal', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['SpellBad'] = SyntaxGroup.FromColor('SpellBad', new TermColor(-1), new TermColor(224));
+res['syntax-groups']['SpellCap'] = SyntaxGroup.FromColor('SpellCap', new TermColor(-1), new TermColor(81));
+res['syntax-groups']['SpellRare'] = SyntaxGroup.FromColor('SpellRare', new TermColor(-1), new TermColor(225));
+res['syntax-groups']['SpellLocal'] = SyntaxGroup.FromColor('SpellLocal', new TermColor(-1), new TermColor(14));
+res['syntax-groups']['Pmenu'] = SyntaxGroup.FromColor('Pmenu', new TermColor(0), new TermColor(225));
+res['syntax-groups']['PmenuSel'] = SyntaxGroup.FromColor('PmenuSel', new TermColor(0), new TermColor(7));
+res['syntax-groups']['PmenuSbar'] = SyntaxGroup.FromColor('PmenuSbar', new TermColor(-1), new TermColor(248));
+res['syntax-groups']['PmenuThumb'] = SyntaxGroup.FromColor('PmenuThumb', new TermColor(-1), new TermColor(0));
+res['syntax-groups']['TabLine'] = SyntaxGroup.FromColor('TabLine', new TermColor(0), new TermColor(7));
+res['syntax-groups']['TabLineSel'] = SyntaxGroup.FromColor('TabLineSel', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['TabLineFill'] = SyntaxGroup.FromColor('TabLineFill', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['CursorColumn'] = SyntaxGroup.FromColor('CursorColumn', new TermColor(-1), new TermColor(7));
+res['syntax-groups']['CursorLine'] = SyntaxGroup.FromColor('CursorLine', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['ColorColumn'] = SyntaxGroup.FromColor('ColorColumn', new TermColor(-1), new TermColor(224));
+res['syntax-groups']['MatchParen'] = SyntaxGroup.FromColor('MatchParen', new TermColor(-1), new TermColor(14));
+res['syntax-groups']['Underlined'] = SyntaxGroup.FromColor('Underlined', new TermColor(5), new TermColor(-1));
+res['syntax-groups']['Ignore'] = SyntaxGroup.FromColor('Ignore', new TermColor(15), new TermColor(-1));
+res['syntax-groups']['awkStatement'] = SyntaxGroup.FromLink('awkStatement', 'Statement');
+res['syntax-groups']['awkFunction'] = SyntaxGroup.FromLink('awkFunction', 'Function');
+res['syntax-groups']['awkConditional'] = SyntaxGroup.FromLink('awkConditional', 'Conditional');
+res['syntax-groups']['awkRepeat'] = SyntaxGroup.FromLink('awkRepeat', 'Repeat');
+res['syntax-groups']['awkTodo'] = SyntaxGroup.FromLink('awkTodo', 'Todo');
+res['syntax-groups']['awkPatterns'] = SyntaxGroup.FromLink('awkPatterns', 'Special');
+res['syntax-groups']['awkVariables'] = SyntaxGroup.FromLink('awkVariables', 'Special');
+res['syntax-groups']['awkSpecialCharacter'] = SyntaxGroup.FromLink('awkSpecialCharacter', 'Special');
+res['syntax-groups']['awkFieldVars'] = SyntaxGroup.FromLink('awkFieldVars', 'Special');
+res['syntax-groups']['awkParenError'] = SyntaxGroup.FromLink('awkParenError', 'awkError');
+res['syntax-groups']['awkArrayElement'] = SyntaxGroup.FromLink('awkArrayElement', 'Special');
+res['syntax-groups']['awkArrayArray'] = SyntaxGroup.FromLink('awkArrayArray', 'awkArray');
+res['syntax-groups']['awkRegExp'] = SyntaxGroup.FromLink('awkRegExp', 'Special');
+res['syntax-groups']['awkBrktRegExp'] = SyntaxGroup.FromLink('awkBrktRegExp', 'awkNestRegExp');
+res['syntax-groups']['awkBrackets'] = SyntaxGroup.FromLink('awkBrackets', 'awkRegExp');
+res['syntax-groups']['awkCharClass'] = SyntaxGroup.FromLink('awkCharClass', 'awkNestRegExp');
+res['syntax-groups']['awkParen'] = SyntaxGroup.FromColor('awkParen', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['awkInParen'] = SyntaxGroup.FromLink('awkInParen', 'awkError');
+res['syntax-groups']['awkSearch'] = SyntaxGroup.FromLink('awkSearch', 'String');
+res['syntax-groups']['awkSpecialPrintf'] = SyntaxGroup.FromLink('awkSpecialPrintf', 'Special');
+res['syntax-groups']['awkString'] = SyntaxGroup.FromLink('awkString', 'String');
+res['syntax-groups']['awkNumber'] = SyntaxGroup.FromLink('awkNumber', 'Number');
+res['syntax-groups']['awkFloat'] = SyntaxGroup.FromLink('awkFloat', 'Float');
+res['syntax-groups']['awkOperator'] = SyntaxGroup.FromLink('awkOperator', 'Special');
+res['syntax-groups']['awkExpression'] = SyntaxGroup.FromLink('awkExpression', 'Special');
+res['syntax-groups']['awkSemicolon'] = SyntaxGroup.FromLink('awkSemicolon', 'Special');
+res['syntax-groups']['awkComma'] = SyntaxGroup.FromLink('awkComma', 'Special');
+res['syntax-groups']['awkComment'] = SyntaxGroup.FromLink('awkComment', 'Comment');
+res['syntax-groups']['awkLineSkip'] = SyntaxGroup.FromLink('awkLineSkip', 'Special');
+res['syntax-groups']['awkArray'] = SyntaxGroup.FromColor('awkArray', new TermColor(-1), new TermColor(-1));
+res['syntax-groups']['awkNestRegExp'] = SyntaxGroup.FromLink('awkNestRegExp', 'Keyword');
+res['syntax-groups']['awkFileIO'] = SyntaxGroup.FromLink('awkFileIO', 'Special');
+res['syntax-groups']['awkBoolLogic'] = SyntaxGroup.FromLink('awkBoolLogic', 'Special');
+res['syntax-groups']['awkError'] = SyntaxGroup.FromLink('awkError', 'Error');
+return res;
+} ())
+;
+res['snippets'] = [];
+res['snippets'].push({
+  'title': 'File Input/Output',
+  'terminal-contents': '<vawk-patterns>BEGIN</vawk-patterns><v-normal> {                                                                         </v-normal>\n<v-normal>  </v-normal><vawk-repeat>while</vawk-repeat><v-normal> ( (</v-normal><vawk-statement>getline</vawk-statement><v-normal> &lt;</v-normal><vawk-string>&quot;input.txt&quot;</vawk-string><v-normal>) &gt; </v-normal><vawk-number>0</vawk-number><v-normal> ) {                                        </v-normal>\n<v-normal>    </v-normal><vawk-statement>print</vawk-statement><v-normal> &gt;</v-normal><vawk-string>&quot;output.txt&quot;</vawk-string><v-normal>                                                         </v-normal>\n<v-normal>  }                                                                             </v-normal>\n<v-normal>}                                                                               </v-normal>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>[20;1H~                                                                         </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-non-text>~                                                                               </v-non-text>\n<v-normal>                                                                                </v-normal>\n'
+});
+return res;
+}())
